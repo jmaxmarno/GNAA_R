@@ -20,20 +20,20 @@ require(arcgisbinding)
 
 quarterdate<-"2017-03-31"  # MAY NEED TO VERIFY DATE FORMAT...
 
-projws= "D:/Projects/Tennessee/RProj"
+projws= "D:/Projects/GNAA/GNAA_R"
 setwd(projws)
 
 # arc.check_product()
-# fc<- arc.open("D:\\Projects\\Tennessee\\AGProGNAA\\AGProGNAA.gdb\\Apts_2017Q1")
+# fc<- arc.open("D:\\Projects\\GNAA\\AGProGNAA\\AGProGNAA.gdb\\Apts_2017Q1")
 # Apt.fc<- arc.select(fc, names(fc@fields))
 # Apt.fc<- as.data.frame(Apt.fc)
 
 ## Now import csv's as data frames
-aptdf<- read.csv("D:/Projects/Tennessee/GNAA/Data/1stQtr2017Data/2017_03_31_AptsClean.csv", stringsAsFactors = FALSE)
+aptdf<- read.csv("D:/Projects/GNAA/Data/1stQtr2017Data/2017_03_31_AptsClean.csv", stringsAsFactors = FALSE)
 # List of desired apartment ID's
-unitmixall<- read_excel("D:/Projects/Tennessee/GNAA/Data/1stQtr2017Data/export/UnitMixandRents.xlsx")
+unitmixall<- read_excel("D:/Projects/GNAA/Data/1stQtr2017Data/export/UnitMixandRents.xlsx")
 colnames(unitmixall)<- gsub(" ", ".", colnames(unitmixall))
-occupancymanagement<- read_excel("D:/Projects/Tennessee/GNAA/Data/1stQtr2017Data/export/OccupancyManagement.xlsx")
+occupancymanagement<- read_excel("D:/Projects/GNAA/Data/1stQtr2017Data/export/OccupancyManagement.xlsx")
 colnames(occupancymanagement)<- gsub(" ", ".", colnames(occupancymanagement))
 #############################################################################################
 # GNAA do not collect - exclude from analysis - additional criteria can be specified here
@@ -234,12 +234,9 @@ DESC3= lapply(aptids, function(x) if (x %in% qunitmix$ID){
 DESC4<- lapply(aptids, function(x) toString(getAmenities(x, aptdf)))
 WEBSITE<- "http://www.gnaa.org/"
 rooturl<-"https://s3.amazonaws.com/gnaaphotos/"
-imgs<- read.csv("D:\\Projects\\Tennessee\\Photos\\ImagesAll_rev.csv", stringsAsFactors = FALSE)
+imgs<- read.csv("D:\\Projects\\GNAA\\Photos\\ImagesAll_rev.csv", stringsAsFactors = FALSE)
 imgs01<-imgs[which(grepl("_01.",as.character(imgs$ImgName))),]
 imgs02<-imgs[which(grepl("_02.",as.character(imgs$ImgName))),]
-# imgs01<- read.csv("D:\\Projects\\Tennessee\\Photos\\Images01.csv", stringsAsFactors = FALSE)
-# imgs02<- read.csv("D:\\Projects\\Tennessee\\Photos\\Images02.csv", stringsAsFactors = FALSE)
-# allimgs<- rbind(imgs01, imgs02)
 
 THUMB_URL<-lapply(aptids, function(x) if(x%in%imgs01$aptID){
   paste(rooturl, imgs01[which(imgs01$aptID==x),]$ImgName[1],sep = "")

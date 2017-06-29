@@ -8,14 +8,14 @@ require(arcgisbinding)
 
 quarterdate<-"2017-03-31"  # MAY NEED TO VERIFY DATE FORMAT...
 
-projws= "D:/Projects/Tennessee/RProj"
+projws= "D:/Projects/GNAA/GNAA_R"
 setwd(projws)
 
 ## Now import csv's as data frames
-aptdf<- read.csv("D:/Projects/Tennessee/GNAA/Data/1stQtr2017Data/2017_03_31_AptsClean.csv", stringsAsFactors = FALSE)
+aptdf<- read.csv("D:/Projects/GNAA/Data/1stQtr2017Data/2017_03_31_AptsClean.csv", stringsAsFactors = FALSE)
 # List of desired apartment ID's
 
-imgs<- read.csv("D:\\Projects\\Tennessee\\Photos\\ImagesAll_rev.csv", stringsAsFactors = FALSE)
+imgs<- read.csv("D:\\Projects\\GNAA\\Photos\\ImagesAll_rev.csv", stringsAsFactors = FALSE)
 imgs01<-imgs[which(grepl("_01.",as.character(imgs$ImgName))),]
 imgs02<-imgs[which(grepl("_02.",as.character(imgs$ImgName))),]
 

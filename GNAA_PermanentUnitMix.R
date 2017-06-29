@@ -9,17 +9,17 @@ require(plyr)
 require(htmlTable)
 quarterdate<-"2017-03-31"  # MAY NEED TO VERIFY DATE FORMAT...
 
-projws= "D:/Projects/Tennessee/RProj"
+projws= "D:/Projects/GNAA/GNAA_R"
 options(tz='MST')
 setwd(projws)
 
 ## Now import csv's as data frames
-aptdf<- read.csv("D:/Projects/Tennessee/GNAA/Data/1stQtr2017Data/2017_03_31_AptsClean.csv", stringsAsFactors = FALSE)
+aptdf<- read.csv("D:/Projects/GNAA/Data/1stQtr2017Data/2017_03_31_AptsClean.csv", stringsAsFactors = FALSE)
 # List of desired apartment ID's
 apids<- aptdf$ID
-unitmixall<- read_excel("D:/Projects/Tennessee/GNAA/Data/1stQtr2017Data/export/UnitMixandRents.xlsx")
+unitmixall<- read_excel("D:/Projects/GNAA/Data/1stQtr2017Data/export/UnitMixandRents.xlsx")
 colnames(unitmixall)<- gsub(" ", ".", colnames(unitmixall))
-occupancymanagement<- read_excel("D:/Projects/Tennessee/GNAA/Data/1stQtr2017Data/export/OccupancyManagement.xlsx")
+occupancymanagement<- read_excel("D:/Projects/GNAA/Data/1stQtr2017Data/export/OccupancyManagement.xlsx")
 colnames(occupancymanagement)<- gsub(" ", ".", colnames(occupancymanagement))
 
 ## clean the Unit Mix table for erroneous values and NA's

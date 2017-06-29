@@ -10,6 +10,7 @@ require(dplyr)
 require(ggmap)
 require(arcgisbinding)
 
+# Test edit
 projws= projws= "D:/Projects/Tennessee/GNAA/Data/1stQtr2017Data"
 setwd(projws)
 quarterdate<-"2017-03-31"

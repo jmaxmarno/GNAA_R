@@ -6,10 +6,10 @@
 require(arcgisbinding)
 require(dplyr)
 arc.check_product()
-subm.fc<- arc.open("D:\\Projects\\Tennessee\\AGProGNAA\\AGProGNAA.gdb\\GNAA_NewSubmarkets")
+subm.fc<- arc.open("D:\\Projects\\GNAA\\AGProGNAA\\AGProGNAA.gdb\\GNAA_NewSubmarkets")
 subm.fc<- arc.select(subm.fc, fields = c('Shape', 'GNAA_NewSubmarkets_NAME'))
 
-fc<- arc.open("D:\\Projects\\Tennessee\\AGProGNAA\\AGProGNAA.gdb\\Apts_2017Q1")
+fc<- arc.open("D:\\Projects\\GNAA\\AGProGNAA\\AGProGNAA.gdb\\Apts_2017Q1")
 aptfc.df<- arc.select(fc, names(fc@fields))
 aptcon<- aptfc.df[c("ID", "SUBMARKET", "Concessions")]
 aptcon<-filter(aptcon, Concessions!='NA')

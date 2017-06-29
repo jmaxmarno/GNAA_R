@@ -1,7 +1,4 @@
-#
 
-
-#
 # MATCH IMAGE FILE NAMES TO APARTMENT NAMES FOR URL GENERATION...
 rm(list=ls())
 require(stringr)
@@ -19,10 +16,10 @@ Mode <- function(v) {
   uniqv[which.max(tabulate(match(v, uniqv)))]
 }
 
-workdir<- "D:\\Projects\\Tennessee\\Photos\\Images"
+workdir<- "D:\\Projects\\GNAA\\Photos\\Images"
 setwd(workdir)
 imglist<- list.files()
-workdir<- "D:\\Projects\\Tennessee\\Photos"
+workdir<- "D:\\Projects\\GNAA\\Photos"
 setwd(workdir)
 rooturl<-"https://s3.amazonaws.com/gnaaphotos/"
 
@@ -37,11 +34,11 @@ mmethod <- 'lcs'
 # CAN USE FOLLOWING LINES TO READ APARTMENTS FC FROM ARCGIS PRO
 
 # arc.check_product()
-# fc<- arc.open("C:\\Users\\Max\\Documents\\Projects\\Tennessee\\AGProGNAA\\AGProGNAA.gdb\\Q1_2017_Apts_rev_Geo_SJoin")
+# fc<- arc.open("C:\\Users\\Max\\Documents\\Projects\\GNAA\\AGProGNAA\\AGProGNAA.gdb\\Q1_2017_Apts_rev_Geo_SJoin")
 # aptfc.df<- arc.select(fc, names(fc@fields))
 # Apartments.df<-aptfc.df[c("USER_ID", "USER_NAME")]
 
-apts.df<- read.csv("D:\\Projects\\Tennessee\\GNAA\\Data\\1stQtr2017Data\\2017_03_31_AptsClean.csv", stringsAsFactors = FALSE)
+apts.df<- read.csv("D:\\Projects\\GNAA\\Data\\1stQtr2017Data\\2017_03_31_AptsClean.csv", stringsAsFactors = FALSE)
 img.df<- data.frame("ImgName"=imglist, "imgsplit"="", stringsAsFactors = FALSE)
 revImages<- read.csv("ImagesAll_rev.csv", stringsAsFactors = FALSE)
 
