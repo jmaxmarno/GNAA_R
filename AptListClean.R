@@ -10,13 +10,12 @@ require(dplyr)
 require(ggmap)
 require(arcgisbinding)
 
-# Test edit
-projws= projws= "D:/Projects/Tennessee/GNAA/Data/1stQtr2017Data"
+projws= projws= "D:/Projects/GNAA/Data/1stQtr2017Data"
 setwd(projws)
 quarterdate<-"2017-03-31"
 
 arc.check_product()
-fc<- arc.open("D:\\Projects\\Tennessee\\AGProGNAA\\AGProGNAA.gdb\\AptCommsLocVer")
+fc<- arc.open("D:\\Projects\\GNAA\\AGProGNAA\\AGProGNAA.gdb\\AptCommsLocVer")
 AptRef.df<- arc.select(fc, names(fc@fields))
 AptRef.df<- as.data.frame(AptRef.df)
 # clean the Q1 2017 Apartments Property List 

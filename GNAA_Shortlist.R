@@ -234,7 +234,7 @@ DESC3= lapply(aptids, function(x) if (x %in% qunitmix$ID){
 DESC4<- lapply(aptids, function(x) toString(getAmenities(x, aptdf)))
 WEBSITE<- "http://www.gnaa.org/"
 rooturl<-"https://s3.amazonaws.com/gnaaphotos/"
-imgs<- read.csv("D:\\Projects\\GNAA\\Photos\\ImagesAll_rev.csv", stringsAsFactors = FALSE)
+imgs<- read.csv("D:\\Projects\\GNAA\\Photos\\ImagesAll.csv", stringsAsFactors = FALSE)
 imgs01<-imgs[which(grepl("_01.",as.character(imgs$ImgName))),]
 imgs02<-imgs[which(grepl("_02.",as.character(imgs$ImgName))),]
 

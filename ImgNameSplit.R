@@ -26,21 +26,16 @@ rooturl<-"https://s3.amazonaws.com/gnaaphotos/"
 ###################################################
 mms<-c("osa", "lv", "dl", "hamming", "lcs", "qgram", "cosine", "jaccard", "jw", "soundex")
 mmethod <- 'lcs'
-
 ###################################################
 
 
 ###################################################
-# CAN USE FOLLOWING LINES TO READ APARTMENTS FC FROM ARCGIS PRO
-
-# arc.check_product()
-# fc<- arc.open("C:\\Users\\Max\\Documents\\Projects\\GNAA\\AGProGNAA\\AGProGNAA.gdb\\Q1_2017_Apts_rev_Geo_SJoin")
-# aptfc.df<- arc.select(fc, names(fc@fields))
-# Apartments.df<-aptfc.df[c("USER_ID", "USER_NAME")]
-
+RevImgs<- read.csv("ImagesAll_rev.csv", stringsAsFactors = FALSE)
 apts.df<- read.csv("D:\\Projects\\GNAA\\Data\\1stQtr2017Data\\2017_03_31_AptsClean.csv", stringsAsFactors = FALSE)
+# READ IMAGE FILENAMES NOT ALREADY PRESENT IN 'REVIMGS' (THEN WILL APPEND)
+
 img.df<- data.frame("ImgName"=imglist, "imgsplit"="", stringsAsFactors = FALSE)
-revImages<- read.csv("ImagesAll_rev.csv", stringsAsFactors = FALSE)
+
 
 allmeth = function(instring){
   #mms<-c("osa", "lv", "dl", "hamming", "lcs", "qgram", "cosine", "jaccard", "jw", "soundex")
@@ -63,14 +58,15 @@ for (i in 1:nrow(img.df)){
 }
 img.df$imgname<- gsub("_", " ", str_sub(img.df$imgsplit, 1, -4))
 img.df$imgname<- gsub("The\\s|\\sThe|Street|Place", "", img.df$imgname, ignore.case = TRUE)
-apts.df$NAME<-   gsub("The\\s|\\sThe|Street|Place", "", apts.df$NAME, ignore.case = TRUE)
+apts.df$StrName<-   gsub("The\\s|\\sThe|Street|Place", "", apts.df$NAME, ignore.case = TRUE)
 # img.df$imgname<- gsub(" The", "", img.df$imgname, ignore.case = TRUE)
 
 img.df$aptindex<- unlist(lapply(img.df$imgname, function(x) allmatch(x)))
 #img.df$aptindex<- amatch(img.df$imgname, apts.df$NAME, method = mmethod, maxDist = 10)
 img.df$aptID<- sapply(img.df$aptindex, function(x) apts.df$ID[x])
-img.df$aptname<- sapply(img.df$aptindex, function(x) apts.df$NAME[x])
-img.df$stringdist<- stringdist(img.df$imgname, img.df$aptname, method = mmethod)
+img.df$aptstrname<- sapply(img.df$aptindex, function(x) apts.df$StrName[x])
+img.df$fName<- sapply(img.df$aptindex, function(x) apts.df$NAME[x])
+img.df$stringdist<- stringdist(img.df$imgname, img.df$aptstrname, method = mmethod)
 img.df$matchtype<- sapply(img.df$aptID, function(x) if(!is.na(x)){'auto'}else{NA})
 #img.df
 ###########################################################################
@@ -81,6 +77,9 @@ img.df$matchtype<- sapply(img.df$aptID, function(x) if(!is.na(x)){'auto'}else{NA
 # file.rename("1418_E_Main_02.jpg", "1418_E_Main_Street_02.jpg")
 img.df<- img.df[order(img.df$stringdist, decreasing = TRUE),]
 
+# NOW BIND NEW RECORDS WITH EXISTING DATAFRAME FROM REVIMGS
+img.df<- img.df[!which(img.df$ImgName %in% RevImgs$ImgName),]
+img.df<- rbind(RevImgs, img.df)
 
 Images01<-img.df[which(grepl("_01.",as.character(img.df$ImgName))),]
 Images02<-img.df[which(grepl("_02.",as.character(img.df$ImgName))),]
