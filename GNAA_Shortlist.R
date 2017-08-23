@@ -99,7 +99,7 @@ getPropInf0<- function(inputID, AptPropList){
                                                    ifn(if (tempsubset$Financing=='Subsidized' | tempsubset$Financing=='Tax Credit'){"Affordable"
                                                    } else{"Conventional"}))},
             if(!is.null(tempsubset$Yb)){paste('Year Built:', ifn(tempsubset$Yb))}, 
-            if(!is.null(tempsubset$Year_Renovated)){paste('Renovated:', ifn(tempsubset$Year_Renovated))},
+            if(!is.null(tempsubset$Year.Renovated)){paste('Renovated:', ifn(tempsubset$Year.Renovated))},
             if(!is.null(tempsubset$Number)){paste('Number of Units:', tempsubset$NUMBER)},
             if(!is.null(tempsubset$Ac)){paste('Site Acreage:', ifn(tempsubset$Ac))}
   )

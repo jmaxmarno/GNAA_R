@@ -3,7 +3,6 @@
 rm(list=ls())
 require(stringr)
 require(stringdist)
-`%not in%` <- function (x, table) is.na(match(x, table, nomatch=NA_integer_))
 
 iflen<- function(xx){
   if (length(xx)!=0){
@@ -79,8 +78,8 @@ img.df$matchtype<- sapply(img.df$aptID, function(x) if(!is.na(x)){'auto'}else{NA
 img.df<- img.df[order(img.df$stringdist, decreasing = TRUE),]
 
 # NOW BIND NEW RECORDS WITH EXISTING DATAFRAME FROM REVIMGS
-tobind<- img.df[which(img.df$ImgName %not in% RevImgs$ImgName),]
-img.df<- rbind(RevImgs, tobind)
+img.df<- img.df[!which(img.df$ImgName %in% RevImgs$ImgName),]
+img.df<- rbind(RevImgs, img.df)
 
 Images01<-img.df[which(grepl("_01.",as.character(img.df$ImgName))),]
 Images02<-img.df[which(grepl("_02.",as.character(img.df$ImgName))),]
