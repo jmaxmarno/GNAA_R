@@ -18,7 +18,7 @@ require(plyr)
 require(htmlTable)
 require(arcgisbinding)
 
-quarterdate<-"2017-03-31"  # MAY NEED TO VERIFY DATE FORMAT...
+quarterdate<-"2017-06-30"  # MAY NEED TO VERIFY DATE FORMAT...
 
 projws= "D:/Projects/GNAA/GNAA_R"
 setwd(projws)
@@ -29,11 +29,11 @@ setwd(projws)
 # Apt.fc<- as.data.frame(Apt.fc)
 
 ## Now import csv's as data frames
-aptdf<- read.csv("D:/Projects/GNAA/Data/1stQtr2017Data/2017_03_31_AptsClean.csv", stringsAsFactors = FALSE)
+aptdf<- read.csv("D:/Projects/GNAA/Data/2ndQtr2017Data/2017_06_30_AptsClean.csv", stringsAsFactors = FALSE)
 # List of desired apartment ID's
-unitmixall<- read_excel("D:/Projects/GNAA/Data/1stQtr2017Data/export/UnitMixandRents.xlsx")
+unitmixall<- read_excel("D:/Projects/GNAA/Data/2ndQtr2017Data/export/UnitMixRents.xlsx")
 colnames(unitmixall)<- gsub(" ", ".", colnames(unitmixall))
-occupancymanagement<- read_excel("D:/Projects/GNAA/Data/1stQtr2017Data/export/OccupancyManagement.xlsx")
+occupancymanagement<- read_excel("D:/Projects/GNAA/Data/2ndQtr2017Data/export/OccupancyManagement.xlsx")
 colnames(occupancymanagement)<- gsub(" ", ".", colnames(occupancymanagement))
 #############################################################################################
 # GNAA do not collect - exclude from analysis - additional criteria can be specified here
@@ -269,5 +269,5 @@ tdf<- data.frame("ID"=unlist(aptids),
 )
 tdf<- tdf[order(tdf$NAME),]
 tdf<- tdf[order(tdf$TAB_NAME),]
-write.csv(tdf, "Q1_2017shortlist.csv",row.names = FALSE )
+write.csv(tdf, "Q2_2017shortlist.csv",row.names = FALSE )
 

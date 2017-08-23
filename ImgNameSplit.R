@@ -3,6 +3,7 @@
 rm(list=ls())
 require(stringr)
 require(stringdist)
+`%not in%` <- function (x, table) is.na(match(x, table, nomatch=NA_integer_))
 
 iflen<- function(xx){
   if (length(xx)!=0){
@@ -31,7 +32,7 @@ mmethod <- 'lcs'
 
 ###################################################
 RevImgs<- read.csv("ImagesAll_rev.csv", stringsAsFactors = FALSE)
-apts.df<- read.csv("D:\\Projects\\GNAA\\Data\\1stQtr2017Data\\2017_03_31_AptsClean.csv", stringsAsFactors = FALSE)
+apts.df<- read.csv("D:\\Projects\\GNAA\\Data\\2ndQtr2017Data\\2017_06_30_AptsClean.csv", stringsAsFactors = FALSE)
 # READ IMAGE FILENAMES NOT ALREADY PRESENT IN 'REVIMGS' (THEN WILL APPEND)
 
 img.df<- data.frame("ImgName"=imglist, "imgsplit"="", stringsAsFactors = FALSE)
@@ -78,8 +79,8 @@ img.df$matchtype<- sapply(img.df$aptID, function(x) if(!is.na(x)){'auto'}else{NA
 img.df<- img.df[order(img.df$stringdist, decreasing = TRUE),]
 
 # NOW BIND NEW RECORDS WITH EXISTING DATAFRAME FROM REVIMGS
-img.df<- img.df[!which(img.df$ImgName %in% RevImgs$ImgName),]
-img.df<- rbind(RevImgs, img.df)
+tobind<- img.df[which(img.df$ImgName %not in% RevImgs$ImgName),]
+img.df<- rbind(RevImgs, tobind)
 
 Images01<-img.df[which(grepl("_01.",as.character(img.df$ImgName))),]
 Images02<-img.df[which(grepl("_02.",as.character(img.df$ImgName))),]
