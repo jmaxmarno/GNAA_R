@@ -4,7 +4,7 @@
 # 
 #  Clean and if necessary add XY coordinates to the 
 # NOTE THAT PART OF THE SCRIPT IS COMMENTED OUT DUE TO RESTRICTIONS ON NUMBER OF QUERIES TO GOOGLE API (GEOCODE)
-  #   CHECK APTREF COLNAMES FOR CONSISTENCY IN LINES 89-91
+#   CHECK APTREF COLNAMES FOR CONSISTENCY IN LINES 89-91
 rm(list = ls())
 require(readxl)
 require(stringi)
@@ -29,7 +29,7 @@ AptRef.df<- as.data.frame(AptRef.df)
 # length<=30 character only name field (no spaces or special)
 
 apartments.df<- read_excel(AptPropList)
-apartments.df<- apartments.df[which(apartments.df$ID %in% AptRef.df$USER_ID),]
+#apartments.df<- apartments.df[which(apartments.df$ID %in% AptRef.df$USER_ID),]
 
 prevname<- function(indf){
   for (i in 1:nrow(indf)){
@@ -83,9 +83,24 @@ addxyfun<- function(inputdf){
 }
 
 GeoApts<- tester
-GeoApts$LAT<- unlist(sapply(GeoApts$ID, function(x) AptRef.df[which(AptRef.df$USER_ID==x),]$POINT_Y))
-GeoApts$LON<- unlist(sapply(GeoApts$ID, function(x) AptRef.df[which(AptRef.df$USER_ID==x),]$POINT_X))
-GeoApts$SUBMARKET<- unlist(sapply(GeoApts$ID, function(x) AptRef.df[which(AptRef.df$USER_ID==x),]$GNAA_NewSubmarkets_NAME))
+GeoApts$LAT<- unlist(sapply(GeoApts$ID, function(x) if (x %in% AptRef.df$USER_ID==TRUE){
+  return(AptRef.df[which(AptRef.df$USER_ID==x),]$POINT_Y))
+  }else{
+    return(NA)
+  })
+
+GeoApts$LON<- unlist(sapply(GeoApts$ID, function(x) if (x %in% AptRef.df$USER_ID){
+  AptRef.df[which(AptRef.df$USER_ID==x),]$POINT_X))
+} else{
+  "NA"
+}
+# GeoApts$LON<- unlist(sapply(GeoApts$ID, function(x) AptRef.df[which(AptRef.df$USER_ID==x),]$POINT_X))
+GeoApts$SUBMARKET<- unlist(sapply(GeoApts$ID, function(x) if (x %in% AptRef.df$USER_ID){
+  AptRef.df[which(AptRef.df$USER_ID==x),]$GNAA_NewSubmarkets_NAME))
+} else{
+  "NA"
+}
+# GeoApts$SUBMARKET<- unlist(sapply(GeoApts$ID, function(x) AptRef.df[which(AptRef.df$USER_ID==x),]$GNAA_NewSubmarkets_NAME))
 
 # ONLY USE IF GEOCODING ADDRESSES IS NEEDED!
 ##########################################################################
@@ -96,11 +111,27 @@ GeoApts$SUBMARKET<- unlist(sapply(GeoApts$ID, function(x) AptRef.df[which(AptRef
 
 write.csv(GeoApts, paste0(gsub("-", "_",quarterdate), "eee_AptsClean.csv"), row.names = FALSE)
 
-
+# test to feature class
 require(sp)
 pj4 <- CRS("+proj=longlat +datum=WGS84 +ellps=WGS84 +towgs84=0,0,0")
-spdf<- SpatialPointsDataFrame(coords = GeoApts[,c("LON", "LAT")], proj4string = pj4, data = dplyr::select(GeoApts, -Notes))
+spdf<- SpatialPointsDataFrame(coords = GeoApts[,c("LON", "LAT")], proj4string = pj4, data = GeoApts[,1:5])
 arc.write(path = "D:\\Projects\\GNAA\\AGProGNAA\\AGProGNAA.gdb\\TESTOUT2", data = spdf)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

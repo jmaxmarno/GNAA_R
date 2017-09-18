@@ -14,7 +14,6 @@
 rm(list=ls())
 require(readxl)
 require(plyr)
-require(dplyr)
 require(htmlTable)
 require(arcgisbinding)
 
@@ -36,11 +35,21 @@ colnames(unitmixall)<- gsub(" ", ".", colnames(unitmixall))
 occupancymanagement<- read_excel("D:/Projects/GNAA/Data/2ndQtr2017Data/export/OccupancyManagement.xlsx")
 colnames(occupancymanagement)<- gsub(" ", ".", colnames(occupancymanagement))
 #############################################################################################
-# FIELD USED TO DESIGNATE COMMUNITIES NOT PARTICIPATING IN COLLCTION - GNAAnotcollect:
-aptdf<- dplyr::filter(aptdf, GNAAnotcollect==FALSE)
+# GNAA do not collect - exclude from analysis - additional criteria can be specified here
+aptdf<- aptdf[which(aptdf$GNAAnotcollect==FALSE),]
 aptids<- aptdf$ID
-# FILTER BY QUARTER COLLECTION DATE:
-OccMang.df<- dplyr::filter(occupancymanagement,as.character(OccupancyDate)==quarterdate)
+#############################################################################################
+# New Submarket Boundaries
+# aptdf$SUBMARKET<- lapply(aptids, function(x) Apt.fc[which(Apt.fc$ID==x),]$SUBMARKET)
+# aptdf$SUBMARKET<- unlist(aptdf$SUBMARKET)
+
+#############################################################################################
+
+OccMang.df<- occupancymanagement[which(as.character(occupancymanagement$OccupancyDate)==quarterdate),]
+
+# get Shortlist data for each ID in aptids
+####################################################################################################
+# Process Apartment Property details, and Unit Mix data (by aptID, and # bdrms) into a new table
 
 ## This function takes an apartment ID argument, and a dataframe argument (with 'ID' field),
 ## and returns the rows that have that ID (one or many).
@@ -99,44 +108,43 @@ getPropInf0<- function(inputID, AptPropList){
   return(gsub("X ", "",prophtml))
 }
 ###########################################################
-# DATA FROM UNIT MIX TABLE %>% HTML TABLE
-## FILTER ON COLLECTION DATE
-qunitmix <- dplyr::filter(unitmixall, as.character(DATE)==quarterdate)
-## add fields with weighted size and rent values by number of units
-qunitmix<- qunitmix %>%
-  mutate(
-    unitXsize = Number.Units*Unit.Size,
-    unitXrent = Number.Units*Rent)
-# GROUP AND SUMMARISE BY APARTMENT ID AND NUMBER OF BEDROOMS:
-unitmix_bdrm<-qunitmix %>% 
-  group_by(ID, Number.Bedrooms) %>% summarise(
-    Number.Units = sum(Number.Units),
-    DATE = toString(DATE[1]),
-    unitXsize = sum(unitXsize),
-    unitXrent = sum(unitXrent)) %>%
-  mutate(
-    AvgRent = unitXrent/Number.Units,
-    AvgSize = unitXsize/Number.Units,
-    RentPSF = AvgRent/AvgSize)
 
-# GROUP AND SUMARISE BY JUST APARTMENT ID
-unitmix_apt<-unitmix_bdrm %>% 
-  group_by(ID) %>% summarise(
-    Number.Units = sum(Number.Units),
-    DATE = toString(DATE[1]),
-    unitXsize = sum(unitXsize),
-    unitXrent = sum(unitXrent)) %>% 
-  mutate(
-    AvgRent = unitXrent/Number.Units,
-    AvgSize = unitXsize/Number.Units,
-    RentPSF = AvgRent/AvgSize)
+# Now need the data from the Unit Mix table (in html table form)
+
+## get df subset of unitmix for Date = 12/31/2016 (4th Quarter 2016)
+# this date value can be replaced and the entire script can be run for the different dateq
+
+qunitmix <- unitmixall[which(as.character(unitmixall$DATE)==quarterdate), ]
+
+## add fields with weighted size and rent values by number of units
+qunitmix$unitXsize<-(qunitmix$Number.Units*qunitmix$Unit.Size)
+qunitmix$unitXrent<-(qunitmix$Number.Units*qunitmix$Rent)
+
+## now group by and summarize based on number of bedrooms
+unitmix_bdrm<- ddply(qunitmix, c("ID", "Number.Bedrooms"), summarize,
+                     num_units=sum(Number.Units),
+                     cdate = toString(DATE[1]),
+                     UnitXSize=sum(unitXsize),
+                     UnitXRent=sum(unitXrent))
+
+#Add fields and calculate average rent, size, and rent psf
+unitmix_bdrm$avgRent<- (unitmix_bdrm$UnitXRent/unitmix_bdrm$num_units)
+unitmix_bdrm$avgSize<- (unitmix_bdrm$UnitXSize/unitmix_bdrm$num_units)
+unitmix_bdrm$Rent_PSF<- (unitmix_bdrm$avgRent/unitmix_bdrm$avgSize)
+
+
+## Generate table of unit mix averages for all bedrooms, (each apartment ID)
+unitmix_apt<- ddply(unitmix_bdrm, "ID", summarize,
+                    cDate = (cdate[1]),
+                    num_units = sum(num_units),
+                    UnitXSize=sum(UnitXSize),
+                    UnitXRent=sum(UnitXRent))
+
 # Add fields and calculate average rent, size, and rent psf
-# unitmix_apt<- unitmix_apt %>% 
-#   mutate(
-#     AvgRent = unitXrent/Number.Units,
-#     AvgSize = unitXsize/Number.Units,
-#     RentPSF = AvgRent/AvgSize
-#   )
+unitmix_apt$avgRent<-(unitmix_apt$UnitXRent/unitmix_apt$num_units)
+unitmix_apt$avgSize<-(unitmix_apt$UnitXSize/unitmix_apt$num_units)
+unitmix_apt$Rent_PSF<- (unitmix_apt$avgRent/unitmix_apt$avgSize)
+
 # Done with Data Prep
 ############################################################################################
 # Converts dataframe to html table output with proper formating for the Unit Mix table
@@ -153,21 +161,21 @@ tohtmltab<- function(inputdf){
 # Master Unit Mix and Apartment Average Unit Mix function:
 # uses tohtmltab fucntion
 getUnitMixAvg<- function(inputID, unitavgtable, unitmixtable){
-  ## note that the unit mix and averages should already be filtered by DATE if applicable
+  ## note that the unit mix and averages should already be subset by DATE if applicable
   # Both df's subsetted by given Apartment ID
   uavg_ID<- unitIDfun(inputID, unitavgtable)
   umix_ID <- unitIDfun(inputID, unitmixtable)
   # df's displaying data in appropriate format
   uavgdf<- data.frame("Bedrooms"="Overall", 
-                      "Units"=ifn(uavg_ID$Number.Units), 
-                      "Average Size"= round(uavg_ID$AvgSize),
-                      "Average Rent" = paste("$",round(uavg_ID$AvgRent),sep = ""),
-                      "Rent PSF"= paste("$", round(uavg_ID$RentPSF, digits = 2), sep = ""))
+                      "Units"=ifn(uavg_ID$num_units), 
+                      "Average Size"= round(uavg_ID$avgSize),
+                      "Average Rent" = paste("$",round(uavg_ID$avgRent),sep = ""),
+                      "Rent PSF"= paste("$", round(uavg_ID$Rent_PSF, digits = 2), sep = ""))
   umixdf<- data.frame("Bedrooms"=umix_ID$Number.Bedrooms,
-                      "Units"=umix_ID$Number.Units,
-                      "Average Size"= round(umix_ID$AvgSize),
-                      "Average Rent"= paste("$", round(umix_ID$AvgRent), sep = ""),
-                      "Rent PSF"= paste("$",round(umix_ID$RentPSF, digits = 2), sep = ""))
+                      "Units"=umix_ID$num_units,
+                      "Average Size"= round(umix_ID$avgSize),
+                      "Average Rent"= paste("$", round(umix_ID$avgRent), sep = ""),
+                      "Rent PSF"= paste("$",round(umix_ID$Rent_PSF, digits = 2), sep = ""))
   uAll<- rbind(umixdf, uavgdf)
   colnames(uAll)<- lapply(colnames(uAll), function(x) gsub("\\.", " ", x))
   uhtml<- tohtmltab(uAll)
@@ -260,5 +268,5 @@ tdf<- data.frame("ID"=unlist(aptids),
 )
 tdf<- tdf[order(tdf$NAME),]
 tdf<- tdf[order(tdf$TAB_NAME),]
-write.csv(tdf, "testTQ2_2017shortlist.csv",row.names = FALSE )
+write.csv(tdf, "Q2_2017shortlist.csv",row.names = FALSE )
 
